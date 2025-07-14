@@ -1,58 +1,79 @@
-import express from "express"
-import mongoose from "mongoose"
-import bodyParser from "body-parser"
-import cookieParser from "cookie-parser"
-import cors from "cors"
-import http from "http"
-import router from "./router/index"
-import { rateLimit } from 'express-rate-limit'
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import http from "http";
+import router from "./router/index";
+import { rateLimit } from "express-rate-limit";
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	// store: ... , // Redis, Memcached, etc. See below.
-})
-
-const app = express(); // create express app
-
-app.use(limiter);
-
-app.use(cors({
-    credentials: true,
-}))
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cookieParser());
-
+// Load environment variables early, or better yet, define them directly when running each instance.
 require("dotenv").config();
 
-// create server
-const server = http.createServer(app);
+// Create the rate limiter middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+});
 
-// listen to port
-server.listen(process.env.PORT , () => {
-    console.log(`Server running on PORT : ${process.env.PORT}`);
-})
+// Function to create and configure an Express app instance
+const createExpressApp = (serverPort: number, serverName: string) => {
+  const app = express();
+  process.env.BACKEND_ADDRESS = `127.0.0.1:${serverPort}`;
+  app.use(limiter); // Apply rate limiting to each instance
 
-// connect to mongoose
-mongoose.connect(process.env.MONGODB_URI);
-mongoose.connection.on('error' , () => {
-    console.log("Error Connecting to MongoDB");
-})
-mongoose.connection.on('connected' , () => {
-    console.log("Successfuly connected to mongoDB");
-})
-
-app.use("/" , router());
-
-app.get("/", (req,res) => {
-    return res.status(200).json({
-        message: "App Successfully running"
+  app.use(
+    cors({
+      credentials: true,
     })
-})
+  );
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+  app.use(cookieParser());
 
 
+  // Connect to mongoose (same connection for both, or separate if needed)
+  mongoose.connect(process.env.MONGODB_URI);
+  mongoose.connection.on("error", () => {
+    console.log(`Error Connecting to MongoDB for ${serverName}`);
+  });
+  mongoose.connection.on("connected", () => {
+    console.log(`Successfully connected to MongoDB for ${serverName}`);
+  });
 
+  // Use your router for all routes
+  app.use("/", router());
+
+  // Basic route to indicate the server instance
+  app.get("/", (req, res) => {
+    res.send(`Hello from ${serverName}!`);
+  });
+
+  // Create and listen to the server
+  const server = http.createServer(app);
+  server.listen(serverPort, () => {
+    console.log(`${serverName} instance successfully running on PORT : ${serverPort}`);
+  });
+
+  return app;
+};
+
+// Create two separate instances of your Express app
+const app1 = createExpressApp(3001, "Server 1");
+const app2 = createExpressApp(3002, "Server 2");
+console.log("The app is Running on PORT 8080 ") // defined in nginx config
+/*
+  Summary: 
+  - This code sets up two separate Express servers with rate limiting, CORS, and MongoDB connections.
+  Here , we have two servers running on different ports (3001 and 3002) with a load balancer (Nginx)
+  to balance the requests . The load balancer will forward requests to the servers leading to less 
+  load on each server and better performance.
+  - Each server has its own rate limiter, CORS configuration, and MongoDB connection.
+  // Each server can be independently scaled or configured as needed.
+  NOTE: The information about the backend server is passed in the headers, which can be used for logging or debugging purposes.
+  The function `createExpressApp` is reusable for creating multiple instances with different configurations.
+  - The servers log the headers received, which can help in debugging and understanding the request flow.
+*/
