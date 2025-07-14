@@ -15,7 +15,7 @@ const limiter = rateLimit({
 	// store: ... , // Redis, Memcached, etc. See below.
 })
 
-const app = express();
+const app = express(); // create express app
 
 app.use(limiter);
 
