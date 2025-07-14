@@ -10,6 +10,7 @@ require("dotenv").config();
 
 export const login = async (req: express.Request , res: express.Response) : Promise<void> => {
     try{
+        const backendServerIdentifier = req.headers['x-backend-server'];
         const {email , password } = req.body;
 
         if(!email || !password){
@@ -123,7 +124,7 @@ export const login = async (req: express.Request , res: express.Response) : Prom
                 name: userExists.name,
                 email: userExists.email,
                 role: userExists.role,
-            }
+            },
         })
         return;
 
