@@ -77,3 +77,5 @@ console.log("The app is Running on PORT 8080 ") // defined in nginx config
   The function `createExpressApp` is reusable for creating multiple instances with different configurations.
   - The servers log the headers received, which can help in debugging and understanding the request flow.
 */
+
+// NOTE: Before starting (npm start) ensure you must start nginx and redis 

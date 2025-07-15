@@ -1,19 +1,15 @@
 require("dotenv").config();
 import jwt from "jsonwebtoken";
 import express from "express";
+import { accessTokenPayload } from "interfaces/tokenPayloads";
+import redisClient from "../redisClient";
 
 // better type safety for the payloads of the tokens
-interface AccessTokenPayload {
-  userId: string;
-  sessionId: string;
-  email: string;
-  role: 'admin' | 'theatreOwner' | 'normalUser';
-}
 
 export const auth = async (req: express.Request , res: express.Response , next : express.NextFunction) : Promise<void> => {
     try{
-        const accessToken = req.headers.authorization?.split(" ")[1] || req.body.accessToken;
-        // My acceessToken will be in request header as Bearer token or in body as accessToken
+        const accessToken = req.headers.authorization?.split(" ")[1];
+        // My acceessToken will be in request header as Bearer token 
         /*
             Example :
             fetch("https://your-backend.com/api/protected", {
@@ -34,22 +30,34 @@ export const auth = async (req: express.Request , res: express.Response , next :
             return;
         }
 
-        const decode = jwt.verify(accessToken,process.env.JWT_SECRET) as AccessTokenPayload;
+        const decode = jwt.verify(accessToken,process.env.JWT_SECRET) as accessTokenPayload;
         if(!decode){
             res.status(401).json({
                 message: "Invalid access token"
             })
             return;
         }
+        // IF blacklisted , we send invalid access token response
+        const isBlacklisted = await redisClient.get(`bl:${decode.sessionId}`);
+
+        if(isBlacklisted){
+            res.status(401).json({
+                message: "The access token is Blacklisted . Please login again"
+            })
+        }
+
+        if(req.user){
+            req.user = null; // Clear previous user data if any
+        }
         // If the access token is valid, we can attach the userId to the request object
-        (req as any).user = decode; // This will contain userId, sessionId, email, role
+        req.user = decode; // This will contain userId, sessionId, email, role
         // You can also attach the userId to req.user if you prefer
         
         // For now If you want to get role in any controller, you can access it like this
         // req.user.role
         next(); // Call the next middleware or controller
     }
-    catch(err){
+    catch(err : any){
         console.error("JWT Error:", err);
 
         if (err.name === "TokenExpiredError") {
