@@ -3,8 +3,7 @@ import User from '../../schemas/User';
 import { hashPassword } from '../../helpers/index';
 import mongoose from 'mongoose';
 import jwt , {SignOptions} from 'jsonwebtoken';
-
-
+import {accessTokenPayload , refreshTokenPayload} from "../../interfaces/tokenPayloads"
 require("dotenv").config();
 
 
@@ -54,16 +53,6 @@ export const login = async (req: express.Request , res: express.Response) : Prom
         // Refresh token will be used to refresh the access token
 
         // For type safety, we can define interfaces for the payloads of the tokens
-        interface refreshTokenPayload {
-            userId : mongoose.Types.ObjectId;
-            sessionId : string;
-        }
-        interface accessTokenPayload {
-            userId : mongoose.Types.ObjectId;
-            sessionId : string;
-            email : string;
-            role?: string; // Optional, if you want to include role in access token
-        }
 
         const refreshTokenBody : refreshTokenPayload = {
             userId: userExists._id,
