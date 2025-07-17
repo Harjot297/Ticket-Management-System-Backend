@@ -73,6 +73,7 @@ console.log("The app is Running on PORT 8080 ") // defined in nginx config
   load on each server and better performance.
   - Each server has its own rate limiter, CORS configuration, and MongoDB connection.
   // Each server can be independently scaled or configured as needed.
+  
   NOTE: The information about the backend server is passed in the headers, which can be used for logging or debugging purposes.
   The function `createExpressApp` is reusable for creating multiple instances with different configurations.
   - The servers log the headers received, which can help in debugging and understanding the request flow.
