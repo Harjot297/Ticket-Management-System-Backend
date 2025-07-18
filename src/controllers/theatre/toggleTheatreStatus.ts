@@ -1,0 +1,57 @@
+import express from 'express';
+import mongoose from 'mongoose';
+import Theatre from '../../schemas/Theatre';
+import redisClient from '../../redisClient';
+
+export const toggleTheatreStatus = async (
+  req: express.Request<{ theatreId: string }>,
+  res: express.Response
+): Promise<void> => {
+  try {
+    const { theatreId } = req.params;
+
+    // Validate theatreId
+    if (!mongoose.Types.ObjectId.isValid(theatreId)) {
+      res.status(400).json({ success: false, message: 'Invalid theatreId' });
+      return;
+    }
+
+    // Fetch theatre
+    const theatre = await Theatre.findById(theatreId);
+    if (!theatre) {
+      res.status(404).json({ success: false, message: 'Theatre not found' });
+      return;
+    }
+
+    // Authorization check
+    if (req.user.role !== 'admin' && req.user.userId !== theatre.owner) {
+      res.status(403).json({ success: false, message: 'You are not authorized to toggle this theatre status' });
+      return;
+    }
+
+    // Toggle status
+    theatre.isActive = !theatre.isActive;
+    await theatre.save();
+
+    // Cache invalidation
+    try {
+      await redisClient.del(`erc:theatre:${theatre.owner}`); // Owner cache
+      await redisClient.del(`erc:theatre:${req.user.userId}`); // Current user cache
+      await redisClient.del(`erc:theatre:6873d5c2e576d0b55a8332d9`); // Admin static cache
+    } catch (err) {
+      console.warn('Cache invalidation failed:', (err as Error).message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Theatre status toggled successfully. Current status: ${theatre.isActive ? 'Active' : 'Inactive'}`,
+      data: { theatreId, isActive: theatre.isActive },
+    });
+  } catch (err: any) {
+    console.error('Error toggling theatre status:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+    });
+  }
+};

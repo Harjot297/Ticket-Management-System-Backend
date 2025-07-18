@@ -56,8 +56,7 @@ const theatreSchema = new mongoose.Schema({
     },
     halls: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Hall",
-        required: true,
+        ref: 'Hall',
     }], // array of all the halls the cinema has
     isActive: {
         type: Boolean,
@@ -67,4 +66,11 @@ const theatreSchema = new mongoose.Schema({
     timestamps: true, // to avoid adding post middleware for createdAt and updatedAt
 });
 theatreSchema.index({ "location.coordinates": "2dsphere" });
+theatreSchema.index(
+  { name: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: "published" },
+  }
+);
 export default mongoose.model('Theatre' , theatreSchema);
