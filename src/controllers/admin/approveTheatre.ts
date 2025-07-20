@@ -99,6 +99,14 @@ export const approveTheatre = async (
 
       try {
         await redisClient.del(`erc:theatre:${req.user.userId}`);
+        await redisClient.del(`erc:theatre:6873d5c2e576d0b55a8332d9`);
+
+        // For global theatre cache invalidation
+        await redisClient.del('erc:theatres:active');
+
+        // For caching theatre/details public route invalidation
+        await redisClient.del(`erc:theatre:details:${theatreId}`);
+
       } catch (e) {
         console.warn('Redis cache invalidation failed:', e.message);
       }

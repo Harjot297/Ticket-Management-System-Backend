@@ -91,8 +91,22 @@ export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBod
         // erc: is REDIS PREFIX WHICH IT BY DEFAULT USES
         try {
             await redisClient.del(`erc:theatre:${theatre.owner}`);
+            await redisClient.del(`erc:theatre:${req.user.userId}`);
             // admin ID cache validation
             await redisClient.del(`erc:theatre:6873d5c2e576d0b55a8332d9`);
+
+            // For global theatre object cache invalidation 
+            await redisClient.del('erc:theatres:active');
+
+            // For caching theatre/details public route invalidation
+            await redisClient.del(`erc:theatre:details:${theatre._id}`);
+
+            // For caching theatre/search by city nd name route invalidation
+            await redisClient.del(`theatres:search:city=${location.city.toString().toLowerCase()}|name=${name.toString().toLowerCase()}`)
+            // for redis cache invalidation for nearby route so that if its soft deleted , it doesnt appear in nearby
+            await redisClient.keys('theatres:nearbyTheatres:*').then(keys => {
+                if (keys.length > 0) redisClient.del(keys);
+            });
         } catch (e) {
             console.warn('Redis cache invalidation failed:', e.message);
         }

@@ -29,3 +29,19 @@ export const userScopedCache = (routeKey: string) => {
     Express router mounts and run only on *Request* and that too after auth middleware thus populating user
     in request;
 */
+
+// Making a global cache to cache global changes
+export const globalCache = (routeKey: string , ttl: Number = 60) => {
+  return ( req: Request , res: Response , next : NextFunction) => {
+    const cachingMiddleware = cache.route({name: routeKey , ttl : ttl});
+    return cachingMiddleware(req,res,next);
+  }
+} 
+
+/*
+  NOTE: userScopedCache → Used only when the response depends on the specific logged-in user.
+  Example: /theatre/my-theatre (each theatre owner sees only their own theatre).
+
+  NOTE: globalCache (with route-based keys like erc:theatres:active or erc:theatre:details:<theatreId>) → Used for public routes where the response is the same for all users.
+  Example: /theatres/active or /theatres/:theatreId/details.
+*/ 

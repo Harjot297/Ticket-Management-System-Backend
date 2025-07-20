@@ -44,6 +44,23 @@ export const softDeleteTheatre = async (
       await redisClient.del(`erc:theatre:${req.user.userId}`); // Current user cache
       // If you have a static admin account ID:
       await redisClient.del(`erc:theatre:6873d5c2e576d0b55a8332d9`); // Replace <ADMIN_ID> if needed
+
+      // For global theatre cache invalidation
+      await redisClient.del('erc:theatres:active');
+      // For caching theatre/details public route invalidation
+      await redisClient.del(`erc:theatre:details:${theatreId}`);
+      // for redis cache invalidation for search route so that if its soft deleted , it doesnt appear in search
+      await redisClient.keys('erc:theatres:search:*').then(keys => {
+        if (keys.length) redisClient.del(keys);
+      });
+
+      // for redis cache invalidation for nearby route so that if its soft deleted , it doesnt appear in nearby
+      await redisClient.keys('theatres:nearbyTheatres:*').then(keys => {
+        if (keys.length > 0) redisClient.del(keys);
+      });
+
+
+
     } catch (err) {
       console.warn('Cache invalidation failed:', err.message);
     }
