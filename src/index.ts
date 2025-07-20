@@ -6,6 +6,8 @@ import cors from "cors";
 import http from "http";
 import router from "./router/index";
 import { rateLimit } from "express-rate-limit";
+import './schemas'; // ensures all models are registered globally
+
 
 // Load environment variables early, or better yet, define them directly when running each instance.
 require("dotenv").config();
