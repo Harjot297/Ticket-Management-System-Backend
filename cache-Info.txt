@@ -1,0 +1,39 @@
+All the cache related information is stored in the cache_info.txt file. 
+
+1. theatre:userID cach: 
+    Used for user scoped caching. UserId is the user ( theatre owner ) who is logged in and the 
+    cache is the theatre object which is stored in the cache.
+    Used when theatreOwner or admin wants to see theatre specific details nd is invalidated when
+    any theatre related changes are made.
+
+2. theatre:details:${theatreId} cache: (global cache)
+    Used for theatre details public route . Values cached for every theatre and 
+    invalidated when any changes to specific theatre are made.
+
+3. theatres:nearbyTheatres:lat=${lat}|lng=${lng}|radius=${radius} cache: (global cache)
+    Used for nearby theatres public route . Values cached for every lat, lng and radius combination and
+    invalidated when any changes to specific theatre location are made.
+
+4. theatres:search:city=${city.toString().toLowerCase()}|name=${name.toString().toLowerCase()} cache:
+    Used for search theatres public route . Values cached for every city and name combination and
+    invalidated when any changes to specific theatre are made. (global cache)
+
+5. theatres:active (global cache) cache : 
+    Used for accessing all active theatres route ( admin ) . So , it contains info of all 
+    active theatres , invalidated when any changes to specific theatre are made.
+
+6. hall:details:${hallId} (global cache) cache: 
+    Used for accessing hall details public route . So , it contains info of each hallId 
+    and is publicly accessable nd cachable
+
+7. theatre:halls:${theatreId} (global cache) cache:
+    Used for accessing all halls of a theatre public route . So , it contains info of all halls of a theatre 
+    and is publicly accessable nd cachable
+
+8. halls:all:page=${page}|size=${pageSize} (global cache) cache:
+    Used for accessing all halls by page and size of page ADMIN route . So , it contains info of all halls
+    created by all theatre owners and is available to admin only. 
+
+9. hall:seats:${hallId}:available=${available} (global cache) cache: 
+    Used for accessing all seats of a hall public route . So , it contains info of all seats of a hall
+    and is publicly accessable nd cachable

@@ -7,7 +7,7 @@ const theatreSchema = new mongoose.Schema({
     name : {
         type : String,
         required: true,
-        unique: true, // A theatre can only have one name
+        
     },
     location: {
         city: {
@@ -57,7 +57,7 @@ const theatreSchema = new mongoose.Schema({
     halls: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Hall',
-    }], // array of all the halls the cinema has
+    }], // array of all the halls the cinema has  
     isActive: {
         type: Boolean,
         default: true

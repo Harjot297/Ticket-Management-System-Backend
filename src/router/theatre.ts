@@ -26,6 +26,6 @@ export default (router: express.Router) => {
 
     router.get('/theatres/active' , auth , globalCache('theatres:active', 120) , getActiveTheatres)
     router.get('/theatres/:theatreId/details', cacheTheatreId , getTheatreDetails);
-    router.get('/theatres/search' , cacheTheatreSearch , searchTheatre);
+    router.get('/theatres/search' , cacheTheatreSearch , searchTheatre); // city aur name se search
     router.get('/theatres/nearby' , cacheNearbyTheatres, getNearbyTheatres)
 }
