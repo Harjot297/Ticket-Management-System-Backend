@@ -75,7 +75,7 @@ export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBod
 
         theatre.name = name;
         theatre.location = location;
-        await theatre.save();
+        await theatre.save(); 
 
         /*
             [SimpleError: MISCONF Redis is configured to save RDB snapshots, but is currently not able to 

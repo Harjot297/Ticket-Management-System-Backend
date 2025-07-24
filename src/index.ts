@@ -6,7 +6,10 @@ import cors from "cors";
 import http from "http";
 import router from "./router/index";
 import { rateLimit } from "express-rate-limit";
+import fileUpload from "express-fileupload";
 import './schemas'; // ensures all models are registered globally
+import { movieStatusUpdater } from "./cronJobs/movieStatusUpdater";
+
 
 
 // Load environment variables early, or better yet, define them directly when running each instance.
@@ -31,10 +34,17 @@ const createExpressApp = (serverPort: number, serverName: string) => {
       credentials: true,
     })
   );
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-  app.use(cookieParser());
+  app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+    limits: { fileSize: 100 * 1024 * 1024 } // 100 MB
+  }));
+  app.use(express.json({ limit: '50mb' }));
+  app.use(bodyParser.json())
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  
+  app.use(cookieParser()); 
+  
 
 
   // Connect to mongoose (same connection for both, or separate if needed)
@@ -67,6 +77,7 @@ const createExpressApp = (serverPort: number, serverName: string) => {
 const app1 = createExpressApp(3001, "Server 1");
 const app2 = createExpressApp(3002, "Server 2");
 console.log("The app is Running on PORT 8080 ") // defined in nginx config
+movieStatusUpdater();
 /*
   Summary: 
   - This code sets up two separate Express servers with rate limiting, CORS, and MongoDB connections.

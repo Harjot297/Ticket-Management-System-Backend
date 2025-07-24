@@ -44,4 +44,4 @@ const hallSchema = new mongoose.Schema({
 hallSchema.index({ theatreId: 1, name: 1 }, { unique: true }); // ensures same name doesnt exist within same theatre
 hallSchema.index({ theatreId: 1 }); // for fast quering by theatreId
 
-export default mongoose.model('Hall' , hallSchema)
+export default mongoose.model('Hall' , hallSchema) 

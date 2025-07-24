@@ -24,16 +24,12 @@ const seatSchema = new mongoose.Schema({
         required: true, // Like VIP, Normal etc
         enum : ['regular' , 'premium' , 'vip']
     },
-    price: {
-        type: Number,
-        required: true,
-    },
     isAvailable: { // for temporarily locking and booking
         type: Boolean,
         required: true,
     },
 
-} , {
+} , {   
     timestamps: true,
 })
 seatSchema.index({ hallId: 1, seatNumber: 1 }, { unique: true });
