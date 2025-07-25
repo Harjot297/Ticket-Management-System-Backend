@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Movie from "../../schemas/Movie";
 import { v2 as cloudinary } from "cloudinary";
 import redisClient from "../../redisClient";
+import { delPattern } from "../../helpers/redisCache";
 
 // Cloudinary config
 cloudinary.config({
@@ -148,10 +149,11 @@ export const updateMovie = async (
 
     // Cache invalidation
     try{
-      const keys = await redisClient.keys("erc:movies:all:admin:*");
-      if (keys.length > 0) await redisClient.del(keys);
-      const publicKeys = await redisClient.keys("erc:movies:all:public:*");
-      if (publicKeys.length > 0) await redisClient.del(publicKeys);
+      await delPattern("erc:movies:all:admin:*");
+      await delPattern("erc:movies:all:public:*");
+      await redisClient.del("erc:movies:upcoming");
+      await redisClient.del(`erc:movie:detail:${movieId}`);
+      await delPattern("erc:movies:search:*");
     }
     catch(e){
       console.warn("Cache invalidation failed:", (e as Error).message)

@@ -124,6 +124,7 @@ export const createHall = async (
      * ---------------------------
      */
     try {
+
       await redisClient.del(`erc:theatre:halls:${hall.theatreId}`);
       await redisClient.del(`erc:hall:details:${hall._id}`);
       await redisClient.del(`erc:theatre:details:${hall.theatreId}`);

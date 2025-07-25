@@ -13,7 +13,7 @@ export const getHallDetails = async (req : express.Request , res: express.Respon
             res.status(400).json({success : false, message: 'Invalid Hall Id'})
             return;
         } 
-        // now get hall details
+        // now get hall details 
         const hall = await Hall.findById(hallId).populate('theatreId').then( doc => {
             if(doc && doc.isActive){
                 return doc.populate('seats');

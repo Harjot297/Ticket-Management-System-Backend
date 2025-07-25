@@ -35,6 +35,12 @@ export const toggleTheatreStatus = async (
 
     // Cache invalidation
     try {
+
+      // invalidate hall:details:${hallId} also , as in hall details route we're populating theatreDetails too
+      for(const hall of theatre.halls){
+        await redisClient.del(`hall:details:${hall}`);
+      }
+
       await redisClient.del(`erc:theatre:${theatre.owner}`); // Owner cache
       await redisClient.del(`erc:theatre:${req.user.userId}`); // Current user cache
       await redisClient.del(`erc:theatre:6873d5c2e576d0b55a8332d9`); // Admin static cache

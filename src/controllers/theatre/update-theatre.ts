@@ -90,6 +90,12 @@ export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBod
 
         // erc: is REDIS PREFIX WHICH IT BY DEFAULT USES
         try {
+
+            // invalidate hall:details:${hallId} also , as in hall details route we're populating theatreDetails too
+            for(const hall of theatre.halls){
+                await redisClient.del(`hall:details:${hall}`);
+            }
+
             await redisClient.del(`erc:theatre:${theatre.owner}`);
             await redisClient.del(`erc:theatre:${req.user.userId}`);
             // admin ID cache validation

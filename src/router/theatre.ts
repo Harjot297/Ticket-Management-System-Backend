@@ -18,14 +18,14 @@ import { cacheNearbyTheatres } from '../middlewares/cacheNearbyTheatres'
 
 export default (router: express.Router) => {
 
-    router.get('/theatre/my-theatre' , auth ,  userScopedCache('theatre') , myTheatre )
+    router.get('/theatre/my-theatre' , auth , userScopedCache('theatre') , myTheatre ) // theatreOwner only
     router.post('/theatre/update-theatre' , auth ,  updateTheatre)
     router.get('/theatre/pending' , auth , isAdmin, userScopedCache('theatre'),  pending)
     router.patch('/theatre/:theatreId/soft-delete' , auth , isTheatreOrAdmin , softDeleteTheatre)
     router.patch('/theatre/:theatreId/toggle-status', auth, isTheatreOrAdmin, toggleTheatreStatus);
 
     router.get('/theatres/active' , auth , globalCache('theatres:active', 120) , getActiveTheatres)
-    router.get('/theatres/:theatreId/details', cacheTheatreId , getTheatreDetails);
+    router.get('/theatres/:theatreId/details', cacheTheatreId , getTheatreDetails); // public
     router.get('/theatres/search' , cacheTheatreSearch , searchTheatre); // city aur name se search
     router.get('/theatres/nearby' , cacheNearbyTheatres, getNearbyTheatres)
 }
