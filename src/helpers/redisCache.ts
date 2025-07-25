@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 const cache = require("express-redis-cache")();
+import redisClient from "../redisClient";
 
 // Export a function called userScopedCache that takes a routeKey as a parameter
 export const userScopedCache = (routeKey: string) => {
@@ -45,3 +46,21 @@ export const globalCache = (routeKey: string , ttl: Number = 60) => {
   NOTE: globalCache (with route-based keys like erc:theatres:active or erc:theatre:details:<theatreId>) → Used for public routes where the response is the same for all users.
   Example: /theatres/active or /theatres/:theatreId/details.
 */ 
+
+/**
+ * Deletes all keys matching a pattern from Redis.
+ * ⚠️ Uses KEYS internally – use with caution in production-scale datasets.
+ */
+export const delPattern = async (pattern: string): Promise<void> => {
+    try {
+      const keys = await redisClient.keys(pattern);
+      if (keys.length > 0) {
+        for (const key of keys) {
+          await redisClient.del(key);
+        }
+        console.log(`Deleted ${keys.length} keys for pattern: ${pattern}`);
+      }
+    } catch (err) {
+      console.error(`Error deleting keys with pattern "${pattern}":`, err);
+    }
+};
