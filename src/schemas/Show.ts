@@ -51,7 +51,7 @@ const showSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['scheduled', 'cancelled', 'completed'],
+        enum: ['scheduled', 'cancelled', 'completed' , 'running'],
         default: 'scheduled'
     },
     pricing: {
@@ -65,3 +65,5 @@ const showSchema = new mongoose.Schema({
 
 showSchema.index({ hallId: 1, startTime: 1 });
 showSchema.index({ movieId: 1, theatreId: 1 });
+
+export default mongoose.model('Show', showSchema);

@@ -9,6 +9,7 @@ import { rateLimit } from "express-rate-limit";
 import fileUpload from "express-fileupload";
 import './schemas'; // ensures all models are registered globally
 import { movieStatusUpdater } from "./cronJobs/movieStatusUpdater";
+import { showStatusUpdater } from "./cronJobs/ShowStatusUpdater";
 
 
 
@@ -78,6 +79,7 @@ const app1 = createExpressApp(3001, "Server 1");
 const app2 = createExpressApp(3002, "Server 2");
 console.log("The app is Running on PORT 8080 ") // defined in nginx config
 movieStatusUpdater();
+showStatusUpdater();
 /*
   Summary: 
   - This code sets up two separate Express servers with rate limiting, CORS, and MongoDB connections.

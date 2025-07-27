@@ -167,6 +167,8 @@ export const createMovie = async (
       await redisClient.del("erc:movies:upcoming");
       await redisClient.del(`erc:movie:detail:${movie._id}`);
       await delPattern("erc:movies:search:*");
+      await delPattern("erc:shows:movie:*");
+      await delPattern("erc:shows:theatre:*");
     }
     catch(e){
       console.warn("Cache invalidation failed:", (e as Error).message)

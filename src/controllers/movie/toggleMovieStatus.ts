@@ -43,6 +43,8 @@ export const toggleMovieStatus = async (req: Request , res: Response) : Promise<
             await redisClient.del("erc:movies:upcoming");
             await redisClient.del(`erc:movie:detail:${movieId}`);
             await delPattern("erc:movies:search:*");
+            await delPattern("erc:shows:movie:*");
+            await delPattern("erc:shows:theatre:*");
         }
         catch(e){
           console.warn("Cache invalidation failed:", (e as Error).message)

@@ -37,3 +37,11 @@ All the cache related information is stored in the cache_info.txt file.
 9. hall:seats:${hallId}:available=${available} (global cache) cache: 
     Used for accessing all seats of a hall public route . So , it contains info of all seats of a hall
     and is publicly accessable nd cachable
+
+10. erc:shows:movie:${movieId}|lang=${language || ''}|format=${format || ''}|date=${date || ''}|
+    days=${days || '1'} (global Cache): 
+    Used for accessing all shows of a movie public route . So , it contains info of all shows of a movie
+
+11. erc:shows:theatre:${theatreId}|lang=${language || ''}|format=${format || ''}|
+    date=${date || ''}|days=${days || '1'}:
+    Used for accessing all shows of a theatre public route . So , it contains info of all shows of a theatre

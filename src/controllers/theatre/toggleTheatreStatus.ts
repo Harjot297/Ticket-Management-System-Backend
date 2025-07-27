@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import Theatre from '../../schemas/Theatre';
 import redisClient from '../../redisClient';
+import { delPattern } from '../../helpers/redisCache';
 
 export const toggleTheatreStatus = async (
   req: express.Request<{ theatreId: string }>,
@@ -59,6 +60,9 @@ export const toggleTheatreStatus = async (
       await redisClient.keys('theatres:nearbyTheatres:*').then(keys => {
         if (keys.length > 0) redisClient.del(keys);
       });
+
+      await delPattern("erc:shows:movie:*");
+      await delPattern("erc:shows:theatre:*");
 
     } catch (err) {
       console.warn('Cache invalidation failed:', (err as Error).message);

@@ -32,12 +32,12 @@ const bookingSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['pending', 'success', 'failed'],
+        enum: ['paid', 'refunded', 'failed' , 'pending'],
         default: 'pending'
     },
     bookingStatus : {
         type : String,
-        enum : ['confirmed', 'cancelled'],
+        enum : ['confirmed', 'cancelled' , 'refunded'],
         default : 'confirmed'
     },
     bookingTime: {

@@ -5,6 +5,7 @@ import theatre from "./theatre";
 import admin from "./admin";
 import halls from "./halls";
 import movie from "./movie";
+import show from "./show";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ export default (): express.Router => {
   admin(router);
   halls(router);
   movie(router);
+  show(router);
   return router;
 };
