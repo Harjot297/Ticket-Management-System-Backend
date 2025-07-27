@@ -7,8 +7,12 @@ import dayjs from "dayjs";
 export const getShowsByMovie = async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     const { movieId } = req.params;
-    const { language, format, date } = req.query;
-    const rawDays = req.query.days;
+    const { language, format, date } : {
+      language: string;
+      format: string;
+      date: string;
+    } = req.query as any;
+    const rawDays = req.query.days ;
 
     // Validate movieId
     if (!mongoose.Types.ObjectId.isValid(movieId)) {
@@ -52,8 +56,15 @@ export const getShowsByMovie = async (req: express.Request, res: express.Respons
     const startOfDay = showDate.startOf("day").toDate();
     const endOfDay = showDate.add(days - 1, "day").endOf("day").toDate();
 
+    interface ShowQuery {
+      movieId: string;
+      status: { $in: string[] };
+      showDate: { $gte: Date; $lte: Date };
+      language?: string;
+      format?: string;
+    }
     // Build query
-    const query: any = {
+    const query: ShowQuery = {
       movieId: movieId,
       status: { $in: ["scheduled", "running"] },
       showDate: { $gte: startOfDay, $lte: endOfDay },

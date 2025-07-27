@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import Show from 'schemas/Show';
+import Show from '../../schemas/Show';
 
 
 export const getShowDetails = async (req: express.Request, res: express.Response): Promise<void> => {

@@ -8,7 +8,8 @@ export const showStatusUpdater = () => {
     const now = dayjs().toDate(); // Convert to native Date for MongoDB comparison
 
     // Update scheduled → running
-    const result = await Show.updateMany(
+    try{
+      const result = await Show.updateMany(
       {
         status: "scheduled",
         startTime: { $lte: now },
@@ -53,6 +54,10 @@ export const showStatusUpdater = () => {
       console.log(
         `🎬 Show status updated to completed for ${result2.modifiedCount} shows.`
       );
+    }
+    }
+    catch(err : any){
+
     }
   });
 };

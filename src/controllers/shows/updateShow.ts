@@ -5,12 +5,9 @@ import Hall from '../../schemas/Hall';
 import { updateShowBody } from '../../interfaces/show_interface/updateShowBody';
 import Movie from '../../schemas/Movie';
 import { delPattern } from '../../helpers/redisCache';
+import { getLocalDateTime } from '../../helpers/dateHelpers';
+import { ALLOWED_LANGUAGES } from '../../constants';
 
-function getLocalDateTime(dateStr: string, timeStr: string): Date {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const [hour, minute] = timeStr.split(":").map(Number);
-  return new Date(year, month - 1, day, hour, minute);
-}
 
 export const updateShow = async (req: express.Request , res: express.Response) : Promise<void> => {
     try{
@@ -53,7 +50,7 @@ export const updateShow = async (req: express.Request , res: express.Response) :
             pricing,
         } : updateShowBody = req.body;
 
-        if(language !== 'english' && language !== 'hindi' && language !== 'tamil' && language !== 'telugu'){
+        if(language && !ALLOWED_LANGUAGES.includes(language)){
             res.status(400).json({
                 success: false,
                 message: "Invalid language , language can only be english,hindi,tamil,telugu (small case )"
@@ -91,6 +88,7 @@ export const updateShow = async (req: express.Request , res: express.Response) :
                 success: false,
                 message: "Format of Hall and Show must match"
             })
+            return;
         }
 
         // validate startTime and endTime

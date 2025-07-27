@@ -8,7 +8,7 @@ import { getShowsByMovie } from '../controllers/shows/getShowsByMovie'
 import { getShowsByTheatre } from '../controllers/shows/getShowsByTheatre'
 import { cacheShowsByMovie } from '../middlewares/shows/cacheShowsByMovie'
 import { cacheShowsByTheatre } from '../middlewares/shows/cacheShowsByTheatre'
-import { getShowDetails } from 'controllers/shows/getShowDetails'
+import { getShowDetails } from '../controllers/shows/getShowDetails'
 
 export default(router: express.Router) => {
     router.post('/show/create' , auth , isTheatreOrAdmin , createShow);

@@ -6,13 +6,8 @@ import Hall from "../../schemas/Hall";
 import Show from "../../schemas/Show";
 import { createShowBody } from "../../interfaces/show_interface/createShowBody";
 import { delPattern } from "../../helpers/redisCache";
-
-// Local date constructor
-function getLocalDateTime(dateStr: string, timeStr: string): Date {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const [hour, minute] = timeStr.split(":").map(Number);
-  return new Date(year, month - 1, day, hour, minute);
-}
+import { ALLOWED_LANGUAGES } from "../../constants";
+import { getLocalDateTime } from "../../helpers/dateHelpers";
 
 export const createShow = async (
   req: express.Request,
@@ -57,10 +52,10 @@ export const createShow = async (
       return;
     }
 
-    if(language !== 'english' && language !== 'hindi' && language !== 'tamil' && language !== 'telugu'){
+    if(!ALLOWED_LANGUAGES.includes(language)){
       res.status(400).json({
         success: false,
-        message: "Invalid language , language can only be english,hindi,tamil,telugu (small case )"
+        message: "Invalid language , language can only be english,hindi,tamil,telugu (lowercase)"
       })
       return;
     }

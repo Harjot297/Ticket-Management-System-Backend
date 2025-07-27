@@ -1,0 +1,1 @@
+export const ALLOWED_LANGUAGES : string[] = ["english", "hindi", "tamil", "telugu"];
