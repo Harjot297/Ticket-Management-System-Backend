@@ -2,6 +2,7 @@ import express from 'express'
 import UpdateTheatreBody from '../../interfaces/updateTheatre'
 import Theatre from '../../schemas/Theatre';
 import redisClient from '../../redisClient';
+import { delPattern } from '../../helpers/redisCache';
 
 export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBody> , res: express.Response) : Promise<void> => {
     try{
@@ -113,6 +114,8 @@ export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBod
             await redisClient.keys('theatres:nearbyTheatres:*').then(keys => {
                 if (keys.length > 0) redisClient.del(keys);
             });
+            await delPattern("erc:shows:movie:*");
+            await delPattern("erc:shows:theatre:*");
         } catch (e) {
             console.warn('Redis cache invalidation failed:', e.message);
         }

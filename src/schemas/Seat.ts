@@ -28,7 +28,26 @@ const seatSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-
+    status: {
+        type: String,
+        enum: ['free', 'booked'],
+        default: 'free'
+    },
+    bookedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    // Seat.ts
+    selectedByUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+    },
+    selectedAt: {
+        type: Date,
+        default: null,
+    },
 } , {   
     timestamps: true,
 })
