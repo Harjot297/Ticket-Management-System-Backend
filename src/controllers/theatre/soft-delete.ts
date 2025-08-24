@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Theatre from '../../schemas/Theatre';
 import redisClient from '../../redisClient';
 import { delPattern } from '../../helpers/redisCache';
+import Show from '../../schemas/Show';
 
 export const softDeleteTheatre = async (
   req: express.Request<{ theatreId: string }>,
@@ -68,6 +69,14 @@ export const softDeleteTheatre = async (
 
       await delPattern("erc:shows:movie:*");
       await delPattern("erc:shows:theatre:*");
+      // fetch shows of this theatre and invalidate
+      const shows = await Show.find({theatreId: theatre._id});
+      for(const show of shows){
+        await redisClient.del(`erc:show:details:${show._id}`);
+      }
+
+      await delPattern("erc:bookings:user:*");
+      await delPattern("erc:bookings:*");
 
     } catch (err) {
       console.warn('Cache invalidation failed:', err.message);

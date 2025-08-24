@@ -4,6 +4,7 @@ import Movie from "../../schemas/Movie";
 import { v2 as cloudinary } from "cloudinary";
 import redisClient from "../../redisClient";
 import { delPattern } from "../../helpers/redisCache";
+import Show from "../../schemas/Show";
 
 // Cloudinary config
 cloudinary.config({
@@ -156,6 +157,13 @@ export const updateMovie = async (
       await delPattern("erc:movies:search:*");
       await delPattern("erc:shows:movie:*");
       await delPattern("erc:shows:theatre:*");
+      const shows = await Show.find({ movieId: movie._id });
+      for (const show of shows) {
+        await redisClient.del(`erc:show:details:${show._id}`);
+      }
+
+      await delPattern("erc:bookings:user:*");
+      await delPattern("erc:bookings:*");
     }
     catch(e){
       console.warn("Cache invalidation failed:", (e as Error).message)

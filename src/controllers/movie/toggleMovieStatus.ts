@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Movie from '../../schemas/Movie';
 import redisClient from '../../redisClient';
 import { delPattern } from '../../helpers/redisCache';
+import Show from '../../schemas/Show';
 
 export const toggleMovieStatus = async (req: Request , res: Response) : Promise<void> => {
     try{    
@@ -45,6 +46,13 @@ export const toggleMovieStatus = async (req: Request , res: Response) : Promise<
             await delPattern("erc:movies:search:*");
             await delPattern("erc:shows:movie:*");
             await delPattern("erc:shows:theatre:*");
+            const shows = await Show.find({ movieId: movie._id });
+            for (const show of shows) {
+                await redisClient.del(`erc:show:details:${show._id}`);
+            }
+
+            await delPattern("erc:bookings:user:*");
+            await delPattern("erc:bookings:*");
         }
         catch(e){
           console.warn("Cache invalidation failed:", (e as Error).message)

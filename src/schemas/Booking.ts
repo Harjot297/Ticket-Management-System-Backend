@@ -37,7 +37,7 @@ const bookingSchema = new mongoose.Schema({
     },
     bookingStatus : {
         type : String,
-        enum : ['confirmed', 'cancelled' , 'refunded'],
+        enum : ['confirmed', 'cancelled' , 'refunded' , 'pending'],
         default : 'confirmed'
     },
     bookingTime: {
@@ -46,7 +46,7 @@ const bookingSchema = new mongoose.Schema({
     },
     transactionId: {
         type: String,
-        required: true
+        
     }
 })
 

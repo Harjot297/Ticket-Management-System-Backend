@@ -8,7 +8,7 @@ import { delPattern } from '../../helpers/redisCache';
 import { getLocalDateTime } from '../../helpers/dateHelpers';
 import { ALLOWED_LANGUAGES } from '../../constants';
 
-
+ 
 export const updateShow = async (req: express.Request , res: express.Response) : Promise<void> => {
     try{
         const showId = req.params.showId;
@@ -139,8 +139,10 @@ export const updateShow = async (req: express.Request , res: express.Response) :
 
         // CACHE INVALIDATION 
         try{
-            delPattern("erc:shows:movie:*");
-            delPattern("erc:shows:theatre:*");
+            await delPattern("erc:shows:movie:*");
+            await delPattern("erc:shows:theatre:*");
+            await delPattern("erc:bookings:user:*");
+            await delPattern("erc:bookings:*");
         }
         catch(err: any){
           console.error("Error invalidating cache:", err);

@@ -5,6 +5,7 @@ import Seat from "../../schemas/Seat";
 import Theatre from "../../schemas/Theatre";
 import redisClient from "../../redisClient";
 import { delPattern } from "../../helpers/redisCache";
+import Show from "../../schemas/Show";
 
 export const updateHall = async (
   req: express.Request<{ hallId: string }, {}, Partial<any>>,
@@ -143,6 +144,14 @@ export const updateHall = async (
       if (seatKeys.length > 0) await redisClient.del(seatKeys);
       await delPattern("erc:shows:movie:*");
       await delPattern("erc:shows:theatre:*");
+      // fetch all shows associated with this hall and invalidate their cache
+      const shows = await Show.find({ hallId: hall._id });
+      for (const show of shows) {
+        await redisClient.del(`erc:show:details:${show._id}`);
+      }
+      await delPattern("erc:bookings:user:*");
+      await delPattern("erc:bookings:*");
+      await delPattern("erc:bookings:show:*");
     } catch (e) {
       console.warn("Cache invalidation failed:", (e as Error).message);
     }

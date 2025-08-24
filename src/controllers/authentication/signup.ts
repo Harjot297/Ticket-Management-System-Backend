@@ -1,6 +1,7 @@
 import express from "express";
 import { hashPassword, randomString } from "../../helpers/index";
 import User from "../../schemas/User";
+import { delPattern } from "../../helpers/redisCache";
 
 export const register = async (
   req: express.Request,
@@ -11,8 +12,7 @@ export const register = async (
     // We will get name , email , password , confirmPassword
     const allowedAdminEmail = "admin@admin.com";
     const { name, email, password, confirmPassword } = req.body;
-    const role = (email === allowedAdminEmail) ? "admin" : "normalUser";
-
+    const role = email === allowedAdminEmail ? "admin" : "normalUser";
 
     if (!name || !email || !password || !confirmPassword) {
       res.status(400).json({
@@ -63,6 +63,13 @@ export const register = async (
     });
 
     await newUser.save();
+
+    try {
+      await delPattern("erc:bookings:*");
+      await delPattern("erc:bookings:show:*");
+    } catch (err: any) {
+      console.log("Error in cache invalidation:", err);
+    }
 
     res.status(201).json({
       user: newUser,

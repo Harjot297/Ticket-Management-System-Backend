@@ -32,7 +32,7 @@ const seatSchema = new mongoose.Schema({
         type: String,
         enum: ['free', 'booked'],
         default: 'free'
-    },
+    }, 
     bookedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
