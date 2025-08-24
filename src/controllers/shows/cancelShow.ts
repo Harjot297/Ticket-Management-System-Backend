@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 import Show from "../../schemas/Show";
 import Seat from "../../schemas/Seat";
 import { delPattern } from "../../helpers/redisCache";
+const { instance } = require("../../helpers/razorpay");
+import Booking from "../../schemas/Booking";
 
-export const cancelShow = async (
+export const cancelShow = async ( 
   req: express.Request,
   res: express.Response
 ): Promise<void> => {
@@ -45,6 +47,30 @@ export const cancelShow = async (
       return;
     }
 
+    // TODO: Initiate and Issue refund to all the booked seats
+    // TODO: 1. Find all confirmed bookings for this show
+    //       2. Initiate refunds via Razorpay using transactionId
+    //       3. Update bookingStatus = "refunded", paymentStatus = "refunded"
+    //       4. Notify user (optional)
+    // DONE
+
+    const bookings = await Booking.find({showId: showId , bookingStatus: "confirmed"});
+
+    for (const booking of bookings) {
+      const refund = await instance.payments.refund(booking.transactionId , {
+        "amount" : booking.totalAmount,
+        "speed" : "optimum",
+        "notes" : {
+          "notes_key_1" : `Refund For the Cancellation of show with showId: ${showId}`,
+          "notes_key_2" : `Refund for booking ID: ${booking._id}`
+        }
+      });
+      booking.paymentStatus = 'refunded';
+      booking.bookingStatus = 'refunded';
+      await booking.save();
+    }
+    // Update show status to "cancelled"
+
     if (show.status === "cancelled") {
       res.status(409).json({
         success: false,
@@ -72,16 +98,14 @@ export const cancelShow = async (
 
     await show.save();
 
-    // TODO: Initiate and Issue refund to all the booked seats
-    // TODO: 1. Find all confirmed bookings for this show
-    //       2. Initiate refunds via Razorpay using transactionId
-    //       3. Update bookingStatus = "refunded", paymentStatus = "refunded"
-    //       4. Notify user (optional)
+    
 
     // CACHE INVALIDATION 
     try{
-      delPattern("erc:shows:movie:*");
-      delPattern("erc:shows:theatre:*");
+      await delPattern("erc:shows:movie:*");
+      await delPattern("erc:shows:theatre:*");
+      await delPattern("erc:bookings:user:*");
+      await delPattern("erc:bookings:*");
     }
     catch(err: any){
       console.error("Error invalidating cache:", err);

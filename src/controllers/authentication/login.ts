@@ -4,6 +4,7 @@ import { hashPassword } from '../../helpers/index';
 import mongoose from 'mongoose';
 import jwt , {SignOptions} from 'jsonwebtoken';
 import {accessTokenPayload , refreshTokenPayload} from "../../interfaces/tokenPayloads"
+import { delPattern } from '../../helpers/redisCache';
 require("dotenv").config();
 
 
@@ -104,6 +105,13 @@ export const login = async (req: express.Request , res: express.Response) : Prom
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         })
+
+        try{
+            await delPattern("erc:bookings:show:*");
+        }
+        catch(err: any){
+            console.log("Error in cache invalidation:", err);
+        }
 
         res.status(200).json({
             accessToken: accessToken,

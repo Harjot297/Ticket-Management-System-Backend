@@ -69,9 +69,9 @@ export const getShowsByMovie = async (req: express.Request, res: express.Respons
       status: { $in: ["scheduled", "running"] },
       showDate: { $gte: startOfDay, $lte: endOfDay },
     };
-
+ 
     if (language) query.language = language;
-    if (format) query.format = format;
+    if (format) query.format = format; 
 
     const shows = await Show.find(query)
       .populate("theatreId", "name location")

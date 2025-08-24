@@ -3,6 +3,7 @@ import UpdateTheatreBody from '../../interfaces/updateTheatre'
 import Theatre from '../../schemas/Theatre';
 import redisClient from '../../redisClient';
 import { delPattern } from '../../helpers/redisCache';
+import Show from '../../schemas/Show';
 
 export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBody> , res: express.Response) : Promise<void> => {
     try{
@@ -116,6 +117,16 @@ export const updateTheatre = async (req : express.Request<{},{},UpdateTheatreBod
             });
             await delPattern("erc:shows:movie:*");
             await delPattern("erc:shows:theatre:*");
+
+            // fetch shows of this theatre and invalidate
+            const shows = await Show.find({theatreId: theatre._id});
+            for(const show of shows){
+                await redisClient.del(`erc:show:details:${show._id}`);
+            }
+
+            await delPattern("erc:bookings:user:*");
+            await delPattern("erc:bookings:*");
+
         } catch (e) {
             console.warn('Redis cache invalidation failed:', e.message);
         }

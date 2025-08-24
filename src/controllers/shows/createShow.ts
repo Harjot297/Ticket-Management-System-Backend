@@ -207,10 +207,12 @@ export const createShow = async (
       pricing,
     });
 
-    // CACHE INVALIDATION 
+    // CACHE INVALIDATION  
     try{
-      delPattern("erc:shows:movie:*");
-      delPattern("erc:shows:theatre:*");
+      await delPattern("erc:shows:movie:*");
+      await delPattern("erc:shows:theatre:*");
+      await delPattern("erc:bookings:user:*");
+      await delPattern("erc:bookings:*");
     }
     catch(err: any){
       console.error("Error invalidating cache:", err);

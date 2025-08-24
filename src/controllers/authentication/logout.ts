@@ -1,6 +1,7 @@
 import express from "express"
 import User from "../../schemas/User";
 import redisClient from "../../redisClient"
+import { delPattern } from "../../helpers/redisCache";
 
 export const logout = async (req: express.Request , res : express.Response) : Promise<void> => {
     try{        
@@ -52,7 +53,13 @@ export const logout = async (req: express.Request , res : express.Response) : Pr
             sameSite: 'strict',
         })
 
-        
+        try{
+            await delPattern("erc:bookings:*");
+            await delPattern("erc:bookings:show:*");
+        }
+        catch(err: any){
+            console.log("Error in cache invalidation:", err);
+        }
 
         res.status(200).json({
             message: "Logout Successfully"

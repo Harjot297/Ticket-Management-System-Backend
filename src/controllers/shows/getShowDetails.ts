@@ -4,7 +4,7 @@ import Show from '../../schemas/Show';
 
 
 export const getShowDetails = async (req: express.Request, res: express.Response): Promise<void> => {
-  try {
+  try { 
     const { showId } = req.params;
 
     if (!showId || !mongoose.Types.ObjectId.isValid(showId)) {
