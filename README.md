@@ -100,7 +100,6 @@ src/
      CLOUDINARY_API_KEY=your_api_key
      CLOUDINARY_API_SECRET=your_secret
   ```
-
 4. Run the development server:
      npm run dev
 ## Future Enhancements
