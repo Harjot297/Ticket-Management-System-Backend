@@ -55,6 +55,7 @@ Supports **multi-server deployment** with **Nginx load balancing** and **Redis c
 ---
 
 ## 📂 Project Structure
+```bash
 src/
 │── controllers/ # Business logic for movies, shows, bookings, etc.
 │── middlewares/ # Auth, role validation, caching
@@ -87,6 +88,7 @@ src/
    cd Ticket-Management-System-Backend
 2. Install dependencies
 3. Create a .env file and configure:
+    ```bash
      PORT=5000
      MONGO_URI=your_mongodb_connection_string
      JWT_ACCESS_SECRET=your_access_secret
